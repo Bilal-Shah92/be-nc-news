@@ -12,5 +12,4 @@ if (!process.env.PGDATABASE) {
     console.log(`Connected to ${process.env.PGDATABASE}`)
 }
 
-
 module.exports = db;

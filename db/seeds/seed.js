@@ -9,7 +9,6 @@ const seed = async ({ topicData, userData, articleData, commentData }) => {
   await db.query('DROP TABLE IF EXISTS users;');
   await db.query('DROP TABLE IF EXISTS topics;');
 
-
 await db.query(`
 CREATE TABLE topics (
   slug VARCHAR PRIMARY KEY,
@@ -63,7 +62,19 @@ CREATE TABLE articles (
     RETURNING *;`,
     articleTimestampsFormatted.map(({title, topic, author, body, created_at, votes, article_img_url}) => [title, topic, author, body, created_at, votes ?? 0, article_img_url])
   );
-  await db.query(articlesFormatted);
+
+  const articlesResults = await db.query(articlesFormatted) // give all results, stored in variable
+  const articlesInserted = articlesResults.rows             // take just the rows of all results, store in variable
+
+  const titleToArticleId = {};
+
+  articlesInserted.forEach(function(article){               // go through article
+  
+  const title = article.title 
+  const id = article.article_id 
+
+  titleToArticleId[title] = id
+  })
 
 await db.query(`
 CREATE TABLE comments (
@@ -77,14 +88,26 @@ CREATE TABLE comments (
   `);
     
     const commentTimestampsFormatted = commentData.map(convertTimestampToDate);
+
+    const commentsTitleToId = commentTimestampsFormatted.map(function(comment){
+     const id = titleToArticleId[comment.article_title]
+          return {
+            article_title: comment.article_title,
+            body: comment.body,
+            votes: comment.votes,
+            author: comment.author,
+            created_at: comment.created_at,
+            article_id: id,
+          }
+         })
+
     const commentsFormatted = pgFormat(
     `INSERT INTO comments(body, votes, author, created_at, article_id)
     VALUES %L
     RETURNING *;`,
-    commentTimestampsFormatted.map(({body, votes, author, created_at, article_id}) => [body, votes ?? 0, author, created_at, article_id])
+    commentsTitleToId.map(({body, votes, author, created_at, article_id}) => [body, votes ?? 0, author, created_at, article_id])
   );
   await db.query(commentsFormatted);
-
 };
 
 module.exports = seed;
