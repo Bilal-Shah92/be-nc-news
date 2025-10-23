@@ -1,4 +1,4 @@
-const { selectCommentsForArticle } = require("../models/comments.model");
+const { selectCommentsForArticle, insertComment } = require("../models/comments.model");
 
 exports.getCommentsForArticle = (req, res, next) => {
   const { article_id } = req.params;
@@ -13,6 +13,27 @@ exports.getCommentsForArticle = (req, res, next) => {
         return res.status(404).send({ msg: "Article not found" });
       }
       res.status(200).send({ comments });  
+    })
+    .catch(next);  
+};
+
+exports.addCommentToArticle = (req, res, next) => {
+  const { article_id } = req.params;  
+  const { username, body } = req.body; 
+
+ 
+  if (isNaN(article_id)) {
+    return res.status(400).send({ msg: "Bad request" });  
+  }
+
+  if (!username || !body) {
+    return res.status(400).send({ msg: "Missing required fields" });
+  }
+
+  insertComment(article_id, username, body)
+    .then((comment) => {
+      
+      res.status(201).send({ comment });
     })
     .catch(next);  
 };

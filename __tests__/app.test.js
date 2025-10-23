@@ -102,6 +102,7 @@ describe("GET /api/topics", () => {
         expect(response.body.msg).toBe("Bad request");
       });
   });
+});
 
   test("404: responds with 'Article not found when article_id does not exist", () => {
     return request(app)
@@ -112,6 +113,7 @@ describe("GET /api/topics", () => {
       });
   });
 
+  // question 5
   describe("GET /api/articles/:article_id/comments", () => {
   test("should return an object with the key of comments and the value of an array of comments for the given article_id", () => {
     return request(app)
@@ -141,4 +143,19 @@ describe("GET /api/topics", () => {
       });
   });
 });
-});
+
+//question 6
+
+describe("POST /api/articles/:article_id/comments", () => {
+  test("should return a 400 if username is missing", () => {
+    const newComment = { body: "good" };
+
+    return request(app)
+      .post("/api/articles/1/comments")
+      .send(newComment)
+      .expect(400)
+      .then((response) => {
+        expect(response.body.msg).toBe("Missing required fields");
+      });
+  });
+})
