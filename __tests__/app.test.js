@@ -159,3 +159,69 @@ describe("POST /api/articles/:article_id/comments", () => {
       });
   });
 })
+
+  //question 7
+
+  describe("PATCH /api/articles/:article_id", () => {
+    test("should update an articles votes", () => {
+    
+    const articleId = 1
+
+    return request(app)
+      .patch(`/api/articles/${articleId}`) 
+      .send({ inc_votes: 5 })
+      .then((response) => {
+        expect(response.status).toBe(200);
+        expect(response.body.article.votes).toBe(105);
+    })
+})
+
+ test("should return an error if article does not exist", () => {
+    const articleId = 9999;
+
+    return request(app)
+      .patch(`/api/articles/${articleId}`)
+      .send({ inc_votes: 5 })
+      .then((response) => {
+        expect(response.status).toBe(404);
+        expect(response.body.msg).toBe("Article not found");
+      });
+  });
+
+    test("should return an error if inc_votes is missing", () => {
+    const articleId = 1; 
+
+    return request(app)
+      .patch(`/api/articles/${articleId}`)
+      .send({})
+      .then((response) => {
+        expect(response.status).toBe(400);
+        expect(response.body.msg).toBe("Bad request, missing inc_votes");
+      });
+  });
+
+  test("should return an error if inc_votes is not a number", () => {
+    const articleId = 1; 
+
+    return request(app)
+      .patch(`/api/articles/${articleId}`)
+      .send({ inc_votes: "five" })
+      .then((response) => {
+        expect(response.status).toBe(400);
+        expect(response.body.msg).toBe("Bad request, inc_votes must be a number");
+      });
+  });
+})
+
+  //question 8
+  describe("DELETE /api/comments/:comment_id", () => {
+    test("204: deletes the comment and responds with no content", () => {
+    
+     return request(app)
+      .delete("/api/comments/1")
+      .expect(204)
+      .then((response) => {
+      expect(response.body).toEqual({});
+      });
+  });
+})

@@ -1,8 +1,8 @@
 const express = require("express");
 const { getTopics } = require("./controllers/topics.controller");
 const { getUsers } = require("./controllers/users.controller");
-const { getArticles, getArticleById } = require("./controllers/articles.controller");
-const { getCommentsForArticle, addCommentToArticle } = require("./controllers/comments.controller");
+const { getArticles, getArticleById, patchArticleVotes } = require("./controllers/articles.controller");
+const { getCommentsForArticle, addCommentToArticle, deleteCommentById } = require("./controllers/comments.controller");
 
 const { handleNotFoundError, handleInvalidInputError, handleUnexpectedError } = require("./errors");
 
@@ -17,6 +17,10 @@ app.get("/api/articles/:article_id", getArticleById);
 app.get("/api/articles/:article_id/comments", getCommentsForArticle);
 
 app.post("/api/articles/:article_id/comments", addCommentToArticle)
+
+app.patch('/api/articles/:article_id', patchArticleVotes)
+
+app.delete("/api/comments/:comment_id", deleteCommentById)
 
 app.use(handleNotFoundError);  
 app.use(handleInvalidInputError);  

@@ -1,4 +1,4 @@
-const { selectCommentsForArticle, insertComment } = require("../models/comments.model");
+const { selectCommentsForArticle, insertComment, removeCommentById } = require("../models/comments.model");
 
 exports.getCommentsForArticle = (req, res, next) => {
   const { article_id } = req.params;
@@ -37,3 +37,17 @@ exports.addCommentToArticle = (req, res, next) => {
     })
     .catch(next);  
 };
+
+exports.deleteCommentById = (req, res, next) => {
+  const { comment_id } = req.params;
+
+  if(isNaN(comment_id)){
+    return res.status(400).send({ msg: "Bad request"})
+  }
+
+  removeCommentById(comment_id)
+    .then(() => {
+      res.status(204).send()
+    })
+    .catch()
+}
