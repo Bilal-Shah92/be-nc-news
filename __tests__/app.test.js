@@ -215,7 +215,7 @@ describe("POST /api/articles/:article_id/comments", () => {
 
   //question 8
   describe("DELETE /api/comments/:comment_id", () => {
-    test("204: deletes the comment and responds with no content", () => {
+    test("deletes the comment by comment_id and responds with status 204 and no content", () => {
     
      return request(app)
       .delete("/api/comments/1")
@@ -224,4 +224,24 @@ describe("POST /api/articles/:article_id/comments", () => {
       expect(response.body).toEqual({});
       });
   });
-})
+
+   test("responds with 'Comment not found' for valid but non-existent id", () => {
+
+    return request(app)
+      .delete("/api/comments/9999")
+      .expect(404)
+      .then((response) => {
+        expect(response.body.msg).toBe("Comment not found");
+      });
+  });
+
+  test("responds with 'Bad request' when comment_id is not a number", () => {
+
+    return request(app)
+      .delete("/api/comments/not-a-number")
+      .expect(400)
+      .then((response) => {
+        expect(response.body.msg).toBe("Bad request");
+      });
+  });
+});
