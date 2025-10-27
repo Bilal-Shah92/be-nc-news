@@ -286,3 +286,36 @@ describe("POST /api/articles/:article_id/comments", () => {
       });
   });
 });
+
+  //question 10
+describe("GET /api/articles(topic query)", () => {
+  test("responds with only articles from the given topic", () => {
+    return request(app)
+      .get("/api/articles?topic=mitch")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.articles.length).toBeGreaterThan(0);
+        body.articles.forEach((article) => {
+          expect(article.topic).toBe("mitch");
+        });
+      });
+    })
+
+      test("responds with empty array if topic exists but has no articles", () => {
+    return request(app)
+      .get("/api/articles?topic=paper")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.articles).toEqual([]);
+      });
+  });
+
+  test("responds with Topic not found' if topic does not exist", () => {
+    return request(app)
+      .get("/api/articles?topic=notarealtopic")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Topic not found");
+      });
+  });
+});

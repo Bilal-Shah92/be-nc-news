@@ -1,6 +1,6 @@
 const db = require("../db/connection");
 
-exports.selectArticles = (sort_by = "created_at", order = "desc") => {
+exports.selectArticles = (sort_by = "created_at", order = "desc", topic) => {
 
   const validSortColumns = [
     "author",
@@ -22,8 +22,7 @@ exports.selectArticles = (sort_by = "created_at", order = "desc") => {
       return Promise.reject({ status: 400, msg: "Invalid order query"})
     }
 
-    return db
-    .query(
+    let queryStr =
         `SELECT
          articles.author,
          articles.title,
@@ -36,14 +35,37 @@ exports.selectArticles = (sort_by = "created_at", order = "desc") => {
     FROM articles
     LEFT JOIN comments
     ON comments.article_id = articles.article_id
-    GROUP BY articles.article_id
-    ORDER BY ${sort_by} ${lowerCaseOrder};
-    `
-    )
-    .then((result) => {
-        return result.rows;
-    });
-  };
+    `;
+
+    const queryValues = [];
+
+    if (topic) {
+      queryStr = queryStr + ` WHERE articles.topic = $1`;
+      queryValues.push(topic);
+      }
+
+    queryStr = queryStr + 
+      `
+      GROUP BY articles.article_id
+      ORDER BY ${sort_by} ${lowerCaseOrder};
+      `;
+
+  return db.query(queryStr, queryValues)
+  .then(({rows}) => {
+     if (topic && rows.length === 0){
+       return db
+         .query(`SELECT * FROM topics WHERE slug = $1;`, [topic])
+         .then (({ rows: topicRows }) => {
+            if (topicRows.length === 0){
+            return Promise.reject({ status: 404, msg: "Topic not found" });
+          } else {
+            return [];
+          }
+     })
+    }
+    return rows;
+  })
+}
 
 
 exports.selectArticleById = (articleId) => {
