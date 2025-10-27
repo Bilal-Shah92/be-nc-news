@@ -318,4 +318,25 @@ describe("GET /api/articles(topic query)", () => {
         expect(body.msg).toBe("Topic not found");
       });
   });
+
+  //question 11
+  describe("GET /api/articles/:article_id (comment_count)", () => {
+  test("should return article including comment_count", () => {
+    return request(app)
+      .get("/api/articles/1")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.article).toHaveProperty("comment_count", expect.any(Number));
+      });
+  });
+
+  test("should return comment_count as 0 when no comments", () => {
+    return request(app)
+      .get("/api/articles/2")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.article.comment_count).toBe(0);
+      });
+  });
+});
 });
