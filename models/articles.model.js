@@ -1,6 +1,27 @@
 const db = require("../db/connection");
 
-exports.selectArticles = () => {
+exports.selectArticles = (sort_by = "created_at", order = "desc") => {
+
+  const validSortColumns = [
+    "author",
+    "title",
+    "article_id",
+    "topic",
+    "created_at",
+    "votes",
+    "article_img_url",
+    "comment_count",
+  ];
+
+  if(!validSortColumns.includes(sort_by)) {
+    return Promise.reject({ status: 400, msg: "Invalid sort_by column"})
+  }
+
+  const lowerCaseOrder = order.toLowerCase();
+    if (lowerCaseOrder !== "asc" && lowerCaseOrder !== "desc"){
+      return Promise.reject({ status: 400, msg: "Invalid order query"})
+    }
+
     return db
     .query(
         `SELECT
@@ -16,11 +37,14 @@ exports.selectArticles = () => {
     LEFT JOIN comments
     ON comments.article_id = articles.article_id
     GROUP BY articles.article_id
-    ORDER BY articles.created_at DESC;`)
+    ORDER BY ${sort_by} ${lowerCaseOrder};
+    `
+    )
     .then((result) => {
         return result.rows;
-    })
-}
+    });
+  };
+
 
 exports.selectArticleById = (articleId) => {
   return db

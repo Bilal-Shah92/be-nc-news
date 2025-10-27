@@ -3,6 +3,7 @@ const app = require("../app");
 const db = require("../db/connection");
 const seed = require("../db/seeds/seed");
 const testData = require("../db/data/test-data");
+expect.extend(require("jest-sorted"));
 
 beforeEach(() => seed(testData));
 afterAll(() => db.end());
@@ -242,6 +243,46 @@ describe("POST /api/articles/:article_id/comments", () => {
       .expect(400)
       .then((response) => {
         expect(response.body.msg).toBe("Bad request");
+      });
+  });
+})
+
+  //question 9
+   describe("GET /api/articles (sorting queries)", () => {
+     test("sorts by created_at desc by default", () => {
+     
+      return request(app)
+      .get("/api/articles")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.articles).toBeSortedBy("created_at", { descending: true });
+      });
+  });
+
+   test("sorts by votes asc when order=asc", () => {
+    return request(app)
+      .get("/api/articles?sort_by=votes&order=asc")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.articles).toBeSortedBy("votes");
+      });
+  });
+
+  test("should return invalid sort_by column", () => {
+    return request(app)
+      .get("/api/articles?sort_by=unknown_column")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid sort_by column");
+      });
+  });
+
+   test("should return Invalid order query", () => {
+    return request(app)
+      .get("/api/articles?order=not_correct_order")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid order query");
       });
   });
 });
