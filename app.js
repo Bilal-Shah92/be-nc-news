@@ -5,10 +5,10 @@ const { getArticles, getArticleById, patchArticleVotes } = require("./controller
 const { getCommentsForArticle, addCommentToArticle, deleteCommentById } = require("./controllers/comments.controller");
 
 const { handleNotFoundError, handleInvalidInputError, handleUnexpectedError } = require("./errors");
-
 const app = express();
 
 app.use(express.json());
+app.use("/api", express.static("public"));
 
 app.get("/api/topics", getTopics);
 app.get("/api/articles", getArticles);
@@ -17,9 +17,7 @@ app.get("/api/articles/:article_id", getArticleById);
 app.get("/api/articles/:article_id/comments", getCommentsForArticle);
 
 app.post("/api/articles/:article_id/comments", addCommentToArticle)
-
 app.patch('/api/articles/:article_id', patchArticleVotes)
-
 app.delete("/api/comments/:comment_id", deleteCommentById)
 
 app.use(handleNotFoundError);  
